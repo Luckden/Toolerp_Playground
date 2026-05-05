@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable
 
 from sqlalchemy.orm import Session
 
@@ -41,9 +40,12 @@ class EventBus:
                     "entity_id": transition.entity_id,
                     "new_state": state.current_state.value,
                 }
-            except (EntityNotFoundError, InvalidTransitionError) as exc:
-                logger.warning("Transition failed: %s", exc)
-                return {"status": "error", "detail": str(exc)}
+            except EntityNotFoundError:
+                logger.warning("Transition failed: entity not found | entity_id=%s", transition.entity_id)
+                return {"status": "error", "detail": "Entity not found."}
+            except InvalidTransitionError as exc:
+                logger.warning("Transition failed: invalid transition | %s", exc)
+                return {"status": "error", "detail": "Invalid lifecycle transition."}
 
         logger.info("No adapter handled event source='%s' type='%s'.", event.source, event.type)
         return {"status": "unhandled", "reason": "no adapter matched"}
