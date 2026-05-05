@@ -1,0 +1,9 @@
+entity_type: service
+initial_state: CREATED
+bindings:
+  VALIDATED:
+    adapter: github_actions
+    workflow: ci
+  RELEASED:
+    adapter: github_actions
+    workflow: cd
